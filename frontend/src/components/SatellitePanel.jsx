@@ -51,6 +51,17 @@ function SatCard({ sat, pos, selected, onSelect }) {
             <span className="u">km/s</span>
           </div>
         </div>
+        <div className="readout">
+          <div className="k">CLD</div>
+          <div
+            className={`v ${
+              pos?.cloudPct == null ? '' : pos.cloudPct >= 70 ? 'cld-high' : pos.cloudPct <= 30 ? 'cld-low' : ''
+            }`}
+          >
+            {pos?.cloudPct == null ? '——' : pos.cloudPct}
+            {pos?.cloudPct != null && <span className="u">%</span>}
+          </div>
+        </div>
       </div>
 
       <div className="sat-card-meta">

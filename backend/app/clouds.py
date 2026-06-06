@@ -33,6 +33,11 @@ class CloudStore:
         self.png: bytes | None = None
         self.meta: dict | None = None
         self.last_error: str | None = None
+        # 0.5° uint8 cover-percent grid (row 0 = 90°N, col 0 = 180°W) for
+        # client-side sampling at satellite subpoints
+        self.grid: bytes | None = None
+        self.grid_w = 0
+        self.grid_h = 0
 
     async def sync(self) -> None:
         async with httpx.AsyncClient(timeout=120, follow_redirects=True) as client:
@@ -46,8 +51,9 @@ class CloudStore:
             resp = await client.get(url, headers={"Range": f"bytes={start}-{end}"})
             resp.raise_for_status()
 
-        png = await asyncio.to_thread(self._render, resp.content)
+        png, grid, grid_w, grid_h = await asyncio.to_thread(self._render, resp.content)
         self.png = png
+        self.grid, self.grid_w, self.grid_h = grid, grid_w, grid_h
         self.meta = {
             "source": "ECMWF IFS 0.25° open data",
             "param": "tcc",
@@ -83,8 +89,8 @@ class CloudStore:
                     return cycle, step, entry
         raise RuntimeError("no published ECMWF cycle with tcc found")
 
-    def _render(self, grib: bytes) -> bytes:
-        """GRIB tcc message -> Web-Mercator translucent PNG."""
+    def _render(self, grib: bytes) -> tuple[bytes, bytes, int, int]:
+        """GRIB tcc message -> (Web-Mercator translucent PNG, sampling grid)."""
         gid = eccodes.codes_new_from_message(grib)
         try:
             ni = eccodes.codes_get(gid, "Ni")
@@ -97,6 +103,10 @@ class CloudStore:
             values = values / 100.0
         values = np.nan_to_num(np.clip(values, 0.0, 1.0))
         values = np.roll(values, ni // 2, axis=1)  # lon 0..360 -> -180..180
+
+        # downsampled raw-percent grid (no display threshold) for subpoint sampling
+        sub = np.ascontiguousarray(values[::2, ::2])
+        grid = (sub * 100).round().astype(np.uint8)
 
         # equirectangular rows (lat 90..-90) -> mercator rows
         y_max = np.log(np.tan(np.pi / 4 + np.radians(MERC_LAT) / 2))
@@ -115,7 +125,7 @@ class CloudStore:
 
         buf = io.BytesIO()
         Image.fromarray(rgba, "RGBA").save(buf, "PNG", optimize=True)
-        return buf.getvalue()
+        return buf.getvalue(), grid.tobytes(), grid.shape[1], grid.shape[0]
 
     async def run_forever(self) -> None:
         while True:

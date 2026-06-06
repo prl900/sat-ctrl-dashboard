@@ -432,7 +432,7 @@ body {
 
 .readouts {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   border-top: 1px solid var(--line);
 }
 
@@ -466,6 +466,15 @@ body {
   font-size: 13px;
   color: var(--text-dim);
   margin-left: 2px;
+}
+
+/* cloud cover under the satellite: imaging conditions at a glance */
+.readout .v.cld-high {
+  color: var(--amber);
+}
+
+.readout .v.cld-low {
+  color: var(--green);
 }
 
 .sat-card-meta {

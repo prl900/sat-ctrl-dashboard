@@ -10,6 +10,7 @@ frontend/dist if present.
 import asyncio
 import logging
 import math
+import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -95,6 +96,7 @@ def get_status():
         elapsed = (datetime.now(timezone.utc) - datetime.fromisoformat(store.last_sync)).total_seconds()
         next_sync_in_s = max(0.0, SYNC_INTERVAL - elapsed)
     return models.Status(
+        revision=os.environ.get("K_REVISION", "dev"),  # Cloud Run revision
         last_sync=store.last_sync,
         last_error=store.last_error,
         next_sync_in_s=next_sync_in_s,
@@ -118,6 +120,23 @@ def get_clouds_png():
 @app.get("/api/clouds/meta")
 def get_clouds_meta():
     return {"meta": cloud_store.meta, "error": cloud_store.last_error}
+
+
+@app.get("/api/clouds/grid")
+def get_clouds_grid():
+    """Raw cover-percent grid (uint8, row 0 = 90°N, col 0 = 180°W)."""
+    if not cloud_store.grid:
+        raise HTTPException(404, "cloud grid not available yet")
+    return Response(
+        cloud_store.grid,
+        media_type="application/octet-stream",
+        headers={
+            "X-Grid-Width": str(cloud_store.grid_w),
+            "X-Grid-Height": str(cloud_store.grid_h),
+            "Cache-Control": "no-cache",
+            "Access-Control-Expose-Headers": "X-Grid-Width, X-Grid-Height",
+        },
+    )
 
 
 # Serve the built frontend when it exists (production single-process deploy)

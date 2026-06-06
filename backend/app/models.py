@@ -33,6 +33,7 @@ class Satellite(BaseModel):
 
 
 class Status(BaseModel):
+    revision: str
     last_sync: str | None
     last_error: str | None
     next_sync_in_s: float | None
