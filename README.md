@@ -1,6 +1,8 @@
 # SAT-CTRL — Real-Time EO Satellite Tracking Dashboard
 
-Mission-control style dashboard tracking **Sentinel-2A/B/C** and **Landsat 8/9** in real time: live positions, ground tracks, sensor footprints and TLE-derived telemetry on a dark ops-room map.
+**Live at [satctrl.live](https://satctrl.live)**
+
+Mission-control style dashboard tracking **Sentinel-2A/B/C** and **Landsat 8/9** in real time: live positions, ground tracks, sensor footprints, current cloud cover and TLE-derived telemetry on a dark ops-room map.
 
 ## How it works
 
@@ -67,3 +69,18 @@ cd backend && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 Add a satellite by appending one entry to `backend/app/catalog.py` (NORAD ID + metadata). If it isn't in CelesTrak's `resource` group, widen the query in `backend/app/tle_sync.py`.
 
 If you ever need multi-instance deployment or historical tracks: swap the in-memory store for Redis (shared cache) or add SQLite/TimescaleDB for history — the `TLEStore` interface in `tle_sync.py` is the only thing to change.
+
+## Contributing
+
+Contributions are very welcome! Some ideas:
+
+- More satellites (anything in CelesTrak's `resource` group is a one-entry change in `backend/app/catalog.py`)
+- Pass predictions ("next overpass of <location>"), acquisition-plan overlays
+- Higher-resolution clouds when ECMWF's 9 km open data lands, or NASA GIBS true-color imagery as an alternative layer
+- 3D globe view (CesiumJS), mobile layout, accessibility
+
+Open an issue to discuss bigger changes, or just send a PR for fixes and small improvements. Keep the mission-control aesthetic — dark, monospace, calm.
+
+## License
+
+[MIT](LICENSE) — free to use, modify and redistribute. Data sources retain their own terms: ECMWF open data is CC-BY-4.0, Natural Earth is public domain, CelesTrak GP data is publicly released by 18 SDS.

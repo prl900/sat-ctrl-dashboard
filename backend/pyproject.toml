@@ -2,6 +2,8 @@
 name = "sat-ctrl-backend"
 version = "0.1.0"
 description = "SAT-CTRL backend: TLE sync from CelesTrak and satellite metadata API"
+license = { text = "MIT" }
+authors = [{ name = "Pablo Rozas Larraondo" }]
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115",
