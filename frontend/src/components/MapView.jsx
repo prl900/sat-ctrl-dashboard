@@ -3,33 +3,33 @@ import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { footprintRing, nightPolygon } from '../lib/propagation'
 
+// Self-rendered basemap from bundled Natural Earth vectors (public domain):
+// slate continents + crisp coastlines over navy ocean. Full contrast control
+// under the cloud overlay, and no third-party tile service.
 const BASEMAP_STYLE = {
   version: 8,
   sources: {
-    carto: {
-      type: 'raster',
-      tiles: ['a', 'b', 'c', 'd'].map(
-        (s) => `https://${s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png`,
-      ),
-      tileSize: 256,
-      attribution:
-        '© OpenStreetMap contributors © CARTO · Clouds: ECMWF Open Data (CC-BY-4.0)',
+    land: {
+      type: 'geojson',
+      data: '/geo/ne_50m_land.geojson',
+      attribution: 'Natural Earth · Clouds: ECMWF Open Data (CC-BY-4.0)',
     },
+    borders: { type: 'geojson', data: '/geo/ne_110m_borders.geojson' },
   },
   layers: [
-    { id: 'bg', type: 'background', paint: { 'background-color': '#05080e' } },
+    { id: 'bg', type: 'background', paint: { 'background-color': '#0a1322' } }, // ocean
+    { id: 'land', type: 'fill', source: 'land', paint: { 'fill-color': '#26344c' } },
     {
-      id: 'carto',
-      type: 'raster',
-      source: 'carto',
-      // lifted brightness/contrast so landmasses stay readable under clouds
-      paint: {
-        'raster-opacity': 1,
-        'raster-saturation': -0.3,
-        'raster-contrast': 0.25,
-        'raster-brightness-max': 1,
-        'raster-brightness-min': 0.05,
-      },
+      id: 'borders',
+      type: 'line',
+      source: 'borders',
+      paint: { 'line-color': '#3a4f73', 'line-width': 0.6, 'line-opacity': 0.7 },
+    },
+    {
+      id: 'coast',
+      type: 'line',
+      source: 'land',
+      paint: { 'line-color': '#51759f', 'line-width': 1 },
     },
   ],
 }
@@ -103,6 +103,7 @@ export default function MapView({ satellites, positions, tracks, selected, onSel
         style: BASEMAP_STYLE,
         center: [wrapLon(Number(params.get('lon') ?? 155)), Number(params.get('lat') ?? 12)],
         zoom: Number(params.get('zoom') ?? 2),
+        maxZoom: 7, // beyond this the 50m coastlines get blocky
         // copies let geometry draw across the dateline; the min-zoom lock set
         // on load keeps the viewport ≤ 360° wide, so panning freely (with
         // wrap-around) never shows the same location twice

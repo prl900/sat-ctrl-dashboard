@@ -58,7 +58,7 @@ cd backend && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 ## UI
 
 - **Top bar** — UTC mission clock with day-of-year, TLE uplink status, LIVE indicator.
-- **Map** — CARTO dark basemap, 30° graticule, per-satellite past track (dashed) and future track (solid + glow), pulsing markers. Click a marker or card to select: the map flies to the satellite and shows its sensor-swath footprint.
+- **Map** — self-rendered basemap from bundled [Natural Earth](https://www.naturalearthdata.com/) vectors (public domain: slate land, coastlines, country borders over navy ocean — no tile service or API key), 30° graticule, per-satellite past track (dashed) and future track (solid + glow), pulsing markers. Click a marker or card to select: the map flies to the satellite and shows its sensor-swath footprint.
 - **Telemetry panel** — per satellite: LAT / LON / ALT / VEL at 1 Hz, ☀ SUNLIT / ☾ ECLIPSE state, orbital period, inclination, sensor, swath, TLE age (amber when >48 h stale).
 - **Status strip** — data source, next-sync countdown, tracked object count, system state.
 
