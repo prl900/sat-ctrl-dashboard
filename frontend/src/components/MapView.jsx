@@ -180,7 +180,7 @@ export default function MapView({ satellites, positions, tracks, selected, onSel
           id: 'clouds',
           type: 'raster',
           source: 'clouds',
-          paint: { 'raster-opacity': 0.15, 'raster-fade-duration': 0 },
+          paint: { 'raster-opacity': 0.3, 'raster-fade-duration': 0 },
         },
         'graticule',
       )

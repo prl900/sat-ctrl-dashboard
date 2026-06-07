@@ -117,7 +117,7 @@ class CloudStore:
         cover = values[rows][:, cols]
 
         rgba = np.zeros((OUT_H, OUT_W, 4), np.uint8)
-        rgba[..., 0], rgba[..., 1], rgba[..., 2] = 208, 224, 240  # pale blue-white
+        rgba[..., 0], rgba[..., 1], rgba[..., 2] = 80, 160, 255  # blue, distinct from the grayscale basemap
         # ignore cover below 45% so only solid decks and fronts show;
         # tcc is rarely zero anywhere, which otherwise reads as global haze
         significant = np.clip((cover - 0.45) / 0.55, 0.0, 1.0)
