@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "site": "satctrl",
+    "public": "firebase-public",
+    "ignore": ["**/.*"],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "sat-ctrl",
+          "region": "australia-southeast1"
+        }
+      }
+    ]
+  }
+}
